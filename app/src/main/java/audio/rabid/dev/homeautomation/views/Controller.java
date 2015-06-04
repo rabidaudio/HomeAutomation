@@ -16,11 +16,11 @@ public class Controller implements CompoundButton.OnCheckedChangeListener {
     }
 
     public String getName(){
-        return "name";
+        return device.getName();
     }
 
     public String getAddress(){
-        return "mac";
+        return device.getAddress();
     }
 
     public boolean isOn(){

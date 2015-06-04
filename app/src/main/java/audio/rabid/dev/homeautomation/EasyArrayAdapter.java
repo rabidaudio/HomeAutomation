@@ -21,14 +21,14 @@ import java.util.Map;
  * Use this one to get an {@link EasyArrayAdapter.AdapterDrawCallback} when the sub item needs to
  * be drawn.
  */
-public class EasyArrayAdapter<T> extends ArrayAdapter<T> {
+public abstract class EasyArrayAdapter<T> extends ArrayAdapter<T> {
 
     private Context context;
     private int layoutId;
     private List<T> list;
-    private HashMap<String, Integer> viewIds;
 
     AdapterDrawCallback<T> callback;
+
 
     public interface AdapterDrawCallback<T> {
         /**
@@ -42,24 +42,24 @@ public class EasyArrayAdapter<T> extends ArrayAdapter<T> {
      *
      * @param context the parent context
      * @param layoutId the ID of the layout resource to use as the view for each item
-     * @param viewIds a set of resource IDs for the child views in the layout
      * @param list the collection of backing objects
      * @param callback called when time to draw an item
      */
-    public EasyArrayAdapter(Context context, int layoutId, HashMap<String, Integer> viewIds,
+    public EasyArrayAdapter(Context context, int layoutId,
                             @Nullable List<T> list, @Nullable AdapterDrawCallback<T> callback){
         super(context, layoutId, (list==null ? new ArrayList<T>() : list));
         this.context = context;
         this.layoutId = layoutId;
         this.list = list;
-        this.viewIds = viewIds;
         this.callback = callback;
     }
+
+    protected abstract HashMap<String, Integer> getViewIds();
 
 
     private HashMap<String, View> getViewSet(View v){
         HashMap<String, View> viewSet = new HashMap<>();
-        Iterator<Map.Entry<String, Integer>> it = viewIds.entrySet().iterator();
+        Iterator<Map.Entry<String, Integer>> it = getViewIds().entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Integer> pair = it.next();
             viewSet.put(pair.getKey(), v.findViewById(pair.getValue()));
