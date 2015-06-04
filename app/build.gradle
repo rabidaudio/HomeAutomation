@@ -17,6 +17,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    lintOptions { //http://jakewharton.github.io/butterknife/
+        disable 'InvalidPackage'
+    }
 }
 
 dependencies {
@@ -24,4 +28,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
 
     compile 'com.intellij:annotations:+@jar'
+    compile 'com.jakewharton:butterknife:6.1.0'
 }

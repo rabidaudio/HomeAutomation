@@ -8,26 +8,27 @@ import android.widget.CompoundButton;
  */
 public class Controller implements CompoundButton.OnCheckedChangeListener {
 
+    private boolean checked = false;
+    private BluetoothDevice device;
 
     public Controller(BluetoothDevice device){
-        //Todo do stuff with it
+        this.device = device;
     }
 
     public String getName(){
-        return "";
+        return "name";
     }
 
     public String getAddress(){
-        return "";
+        return "mac";
     }
 
     public boolean isOn(){
-        return false;
+        return checked;
     }
-
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-
+        checked = !checked;
     }
 }

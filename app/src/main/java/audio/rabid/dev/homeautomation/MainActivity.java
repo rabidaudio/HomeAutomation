@@ -9,10 +9,17 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
+
+import audio.rabid.dev.homeautomation.views.BluetoothControlArrayAdapter;
+import audio.rabid.dev.homeautomation.views.Controller;
+import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 
 public class MainActivity extends Activity {
@@ -21,12 +28,17 @@ public class MainActivity extends Activity {
 
     private BluetoothAdapter adapter;
 
-    private ArrayList<BluetoothDevice> connectedAutomationDevices = new ArrayList<>();
+    private ArrayList<Controller> connectedAutomationDevices = new ArrayList<>();
+
+    @InjectView(R.id.controllersList) ListView controllersList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.inject(this);
+
+        controllersList.setAdapter(new BluetoothControlArrayAdapter(this, null));
 
         adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter == null) {
@@ -40,6 +52,7 @@ public class MainActivity extends Activity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }else{
             //open connection
+            findDevice();
         }
     }
 
@@ -50,6 +63,7 @@ public class MainActivity extends Activity {
             case REQUEST_ENABLE_BT:
                 if(resultCode == RESULT_OK){
                     //bluetooth is now enabled
+                    findDevice();
                 }else{
                     unsupported();
                 }
@@ -66,16 +80,16 @@ public class MainActivity extends Activity {
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
         for (BluetoothDevice device : pairedDevices) {
             if(isAutomationDevice(device)){
-                connectedAutomationDevices.add(device);
+                connectedAutomationDevices.add(new Controller(device));
             }
         }
-
-
+        controllersList.setAdapter(new BluetoothControlArrayAdapter(this, connectedAutomationDevices));
     }
 
 
     private static boolean isAutomationDevice(BluetoothDevice device){
-        return device.getName().startsWith("HC"); //TODO
+//        return device.getName().startsWith("HC"); //TODO
+        return true;
     }
 
 }
