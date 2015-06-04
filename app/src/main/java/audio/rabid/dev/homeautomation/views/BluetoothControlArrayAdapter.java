@@ -28,7 +28,7 @@ public class BluetoothControlArrayAdapter extends EasyArrayAdapter<Controller, B
     protected void onDrawView(Controller c, ViewHolder h) {
         h.deviceName.setText(c.getName());
         h.macAddress.setText(c.getAddress());
-        h.switchCtrl.setChecked(c.isOn());
+        h.switchCtrl.setChecked(c.isPaired());
         h.switchCtrl.setOnCheckedChangeListener(c);
     }
 

@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by charles on 6/3/15.
- *
  * I got tired of building the same ArrayAdapter over and over.
  *
  * Subclass this class with two generics: {@link T} is the class of the "Model" object
