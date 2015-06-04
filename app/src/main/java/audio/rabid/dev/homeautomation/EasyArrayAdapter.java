@@ -8,88 +8,76 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by charles on 6/3/15.
  *
  * I got tired of building the same ArrayAdapter over and over.
  *
- * Use this one to get an {@link EasyArrayAdapter.AdapterDrawCallback} when the sub item needs to
- * be drawn.
+ * Subclass this class with two generics: {@link T} is the class of the "Model" object
+ * and {@link V} is the class of the "View" object. Typically, you'll want to make a protected
+ * ViewHolder subclass. If you do that, {@link #createViewHolder(View)} becomes as simple as
+ *
+ * <pre>
+ *         @Override
+ *         protected ViewHolder createViewHolder(View v) {
+ *              return new ViewHolder(v);
+ *         }
+ * </pre>
+ *
+ * The other method you need is {@link #onDrawView(Object, Object)} which gives you the model and the
+ * ViewHolder and allows you to map the data to the view.
+ *
+ * Everything else is handled for you (all the inflation bullshit, keeping track of the collection, etc.).
+ *
+ * @author Charles Julian Knight, <a href="mailto:charles@rabidaudio.com">charles@rabidaudio.com</a>
+ *
+ * @see <a href="http://developer.android.com/training/improving-layouts/smooth-scrolling.html">ViewHolder Pattern</a>
  */
-public abstract class EasyArrayAdapter<T> extends ArrayAdapter<T> {
+public abstract class EasyArrayAdapter<T, V> extends ArrayAdapter<T> {
 
     private Context context;
     private int layoutId;
     private List<T> list;
-
-    AdapterDrawCallback<T> callback;
-
-
-    public interface AdapterDrawCallback<T> {
-        /**
-         * @param object The model
-         * @param viewSet The child views to update
-         */
-        void onDrawView(T object, HashMap<String, View> viewSet);
-    }
 
     /**
      *
      * @param context the parent context
      * @param layoutId the ID of the layout resource to use as the view for each item
      * @param list the collection of backing objects
-     * @param callback called when time to draw an item
      */
-    public EasyArrayAdapter(Context context, int layoutId,
-                            @Nullable List<T> list, @Nullable AdapterDrawCallback<T> callback){
+    public EasyArrayAdapter(Context context, int layoutId, @Nullable List<T> list){
         super(context, layoutId, (list==null ? new ArrayList<T>() : list));
         this.context = context;
         this.layoutId = layoutId;
         this.list = list;
-        this.callback = callback;
     }
 
-    protected abstract HashMap<String, Integer> getViewIds();
+    protected abstract void onDrawView(T object, V viewHolder);
+    protected abstract V createViewHolder(View v);
 
-
-    private HashMap<String, View> getViewSet(View v){
-        HashMap<String, View> viewSet = new HashMap<>();
-        Iterator<Map.Entry<String, Integer>> it = getViewIds().entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Integer> pair = it.next();
-            viewSet.put(pair.getKey(), v.findViewById(pair.getValue()));
-            it.remove(); // avoids a ConcurrentModificationException
-        }
-        return viewSet;
-    }
 
     @Override
     public View getView(int position, View view, ViewGroup viewGroup) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         View rowView;
-        HashMap<String, View> viewSet;
+        V viewHolder;
         if (view == null) {
             rowView = inflater.inflate(layoutId, viewGroup, false);
-            viewSet = getViewSet(rowView);
-            rowView.setTag(viewSet);
+            viewHolder = createViewHolder(rowView);
+            rowView.setTag(viewHolder);
         } else {
             rowView = view;
-            viewSet = (HashMap<String, View>) rowView.getTag();
-            if (viewSet == null) {
+            viewHolder = (V) rowView.getTag();
+            if (viewHolder == null) {
                 //for some reason, no holder attached
-                viewSet = getViewSet(rowView);
-                rowView.setTag(viewSet);
+                viewHolder = createViewHolder(rowView);
+                rowView.setTag(viewHolder);
             }
         }
-        if(callback != null){
-            callback.onDrawView(list.get(position), viewSet);
-        }
+        onDrawView(list.get(position), viewHolder);
         return rowView;
     }
 }
